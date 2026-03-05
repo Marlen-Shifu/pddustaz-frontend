@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Typography, Card, Row, Col, Tag, Spin, App, Result, Breadcrumb } from 'antd';
 import { ReadOutlined, LockOutlined } from '@ant-design/icons';
 import { lessonsApi } from '@/api/lessons';
+import { useLanguageStore } from '@/store/useLanguageStore';
 import type { CategoryDetail } from '@/types';
 
 const { Title, Text } = Typography;
@@ -12,6 +13,7 @@ export default function CategoryDetailPage() {
   const navigate = useNavigate();
   const { message } = App.useApp();
 
+  const lang = useLanguageStore((s) => s.lang);
   const [category, setCategory] = useState<CategoryDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,47 +33,53 @@ export default function CategoryDetailPage() {
     return <Result status="error" title="Категория не найдена" />;
   }
 
+  const catName = lang === 'kz' && category.name_kz ? category.name_kz : category.name;
+  const catDesc = lang === 'kz' && category.description_kz ? category.description_kz : category.description;
+
   return (
     <div>
       <Breadcrumb
         style={{ marginBottom: 16 }}
         items={[
-          { title: <a onClick={() => navigate('/tests')}>Тесты и уроки</a> },
-          { title: category.name },
+          { title: <a onClick={() => navigate('/lessons')}>Уроки</a> },
+          { title: catName },
         ]}
       />
 
-      <Title level={2}>{category.name}</Title>
-      {category.description && (
+      <Title level={2}>{catName}</Title>
+      {catDesc && (
         <Text type="secondary" style={{ fontSize: 16, display: 'block', marginBottom: 24 }}>
-          {category.description}
+          {catDesc}
         </Text>
       )}
 
       <Row gutter={[16, 16]}>
-        {category.lessons.map((lesson) => (
-          <Col xs={24} sm={12} md={8} lg={6} key={lesson.id}>
-            <Card
-              hoverable
-              style={{ borderRadius: 16 }}
-              styles={{ body: { padding: 20 } }}
-              cover={lesson.image ? (
-                <img src={lesson.image} alt={lesson.title} style={{ height: 160, objectFit: 'cover', borderRadius: '16px 16px 0 0' }} />
-              ) : undefined}
-              onClick={() => navigate(`/lessons/${lesson.slug}`)}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <ReadOutlined style={{ fontSize: 20, color: '#1D5BBD' }} />
-                {!lesson.is_demo && <LockOutlined style={{ color: '#999' }} />}
-              </div>
-              <Title level={5} style={{ marginTop: 0, marginBottom: 8 }}>{lesson.title}</Title>
-              <div style={{ display: 'flex', gap: 6 }}>
-                {lesson.is_demo && <Tag color="green">Демо</Tag>}
-                <Tag>Урок {lesson.order}</Tag>
-              </div>
-            </Card>
-          </Col>
-        ))}
+        {category.lessons.map((lesson) => {
+          const lessonTitle = lang === 'kz' && lesson.title_kz ? lesson.title_kz : lesson.title;
+          return (
+            <Col xs={24} sm={12} md={8} lg={6} key={lesson.id}>
+              <Card
+                hoverable
+                style={{ borderRadius: 16 }}
+                styles={{ body: { padding: 20 } }}
+                cover={lesson.image ? (
+                  <img src={lesson.image} alt={lessonTitle} style={{ height: 160, objectFit: 'cover', borderRadius: '16px 16px 0 0' }} />
+                ) : undefined}
+                onClick={() => navigate(`/lessons/${lesson.slug}`)}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <ReadOutlined style={{ fontSize: 20, color: '#1D5BBD' }} />
+                  {!lesson.is_demo && <LockOutlined style={{ color: '#999' }} />}
+                </div>
+                <Title level={5} style={{ marginTop: 0, marginBottom: 8 }}>{lessonTitle}</Title>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {lesson.is_demo && <Tag color="green">Демо</Tag>}
+                  <Tag>Урок {lesson.order}</Tag>
+                </div>
+              </Card>
+            </Col>
+          );
+        })}
       </Row>
 
       {category.lessons.length === 0 && (

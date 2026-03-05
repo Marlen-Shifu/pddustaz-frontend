@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Typography, Button, Card, Radio, Spin, Progress, Space, App, Result, Modal, Alert } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { demoApi } from '@/api/demo';
+import { useLanguageStore } from '@/store/useLanguageStore';
 import type { DemoTestDetail, DemoQuestion, CheckAnswerResponse } from '@/types';
 
 const { Title, Text, Paragraph } = Typography;
@@ -17,6 +18,7 @@ export default function DemoTestPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { message } = App.useApp();
+  const lang = useLanguageStore((s) => s.lang);
 
   const [test, setTest] = useState<DemoTestDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -159,7 +161,9 @@ export default function DemoTestPage() {
       {/* Question */}
       <Card style={{ borderRadius: 16, marginBottom: 16 }}>
         <Text type="secondary">Вопрос {currentIndex + 1} из {totalQuestions}</Text>
-        <Title level={5} style={{ marginTop: 8 }}>{currentQuestion.text}</Title>
+        <Title level={5} style={{ marginTop: 8 }}>
+          {lang === 'kz' && currentQuestion.text_kz ? currentQuestion.text_kz : currentQuestion.text}
+        </Title>
 
         {currentQuestion.media && (currentQuestion.media_type === 'image' || currentQuestion.media_type === 'gif') && (
           <img
@@ -186,7 +190,7 @@ export default function DemoTestPage() {
           <Space direction="vertical" style={{ width: '100%' }}>
             {currentQuestion.answers.map((opt) => (
               <Radio key={opt.id} value={opt.id} style={getAnswerStyle(opt.id)}>
-                {opt.text}
+                {lang === 'kz' && opt.text_kz ? opt.text_kz : opt.text}
               </Radio>
             ))}
           </Space>
@@ -199,7 +203,7 @@ export default function DemoTestPage() {
             showIcon
             icon={feedback.is_correct ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
             message={feedback.is_correct ? 'Правильно!' : 'Неправильно'}
-            description={feedback.explanation || undefined}
+            description={(lang === 'kz' && feedback.explanation_kz ? feedback.explanation_kz : feedback.explanation) || undefined}
           />
         )}
       </Card>

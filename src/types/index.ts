@@ -91,8 +91,10 @@ export interface SubscriptionCheck {
 export interface Category {
   id: number;
   name: string;
+  name_kz: string;
   slug: string;
   description: string;
+  description_kz: string;
   order: number;
   lessons_count: number;
 }
@@ -100,8 +102,10 @@ export interface Category {
 export interface CategoryDetail {
   id: number;
   name: string;
+  name_kz: string;
   slug: string;
   description: string;
+  description_kz: string;
   order: number;
   lessons: LessonListItem[];
 }
@@ -109,6 +113,7 @@ export interface CategoryDetail {
 export interface LessonListItem {
   id: number;
   title: string;
+  title_kz: string;
   slug: string;
   image: string | null;
   order: number;
@@ -118,13 +123,16 @@ export interface LessonListItem {
 export interface LessonDetail {
   id: number;
   title: string;
+  title_kz: string;
   slug: string;
   content: string;
+  content_kz: string;
   image: string | null;
-  video_url: string;
+  video_file: string | null;
   order: number;
   category: number;
   category_name: string;
+  category_name_kz: string;
   is_demo: boolean;
   created_at: string;
   updated_at: string;
@@ -196,14 +204,19 @@ export interface SubmitAnswerRequest {
 export interface DemoAnswer {
   id: number;
   text: string;
+  text_kz: string;
   order: number;
 }
 
 export interface DemoQuestion {
   id: number;
   text: string;
+  text_kz: string;
   media: string | null;
   media_type: '' | 'image' | 'gif' | 'video';
+  category: number;
+  category_name: string;
+  category_name_kz: string;
   answers: DemoAnswer[];
 }
 
@@ -215,6 +228,7 @@ export interface CheckAnswerResponse {
   is_correct: boolean;
   correct_answer_id: number | null;
   explanation: string;
+  explanation_kz: string;
 }
 
 // --- Schools (B2B) ---

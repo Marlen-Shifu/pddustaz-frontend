@@ -14,7 +14,6 @@ import RegisterPage from '@/pages/auth/RegisterPage';
 import ProfilePage from '@/pages/ProfilePage';
 import TestAttemptPage from '@/pages/tests/TestAttemptPage';
 import TestResultPage from '@/pages/tests/TestResultPage';
-import MyAttemptsPage from '@/pages/tests/MyAttemptsPage';
 import CategoryDetailPage from '@/pages/lessons/CategoryDetailPage';
 import LessonDetailPage from '@/pages/lessons/LessonDetailPage';
 import SchoolDashboardPage from '@/pages/school/SchoolDashboardPage';
@@ -53,7 +52,6 @@ export const router = createBrowserRouter([
           { path: 'profile', element: <ProfilePage /> },
           { path: 'tests/attempt/:id', element: <TestAttemptPage /> },
           { path: 'tests/result/:id', element: <TestResultPage /> },
-          { path: 'tests/history', element: <MyAttemptsPage /> },
           { path: 'school', element: <SchoolDashboardPage /> },
           { path: 'school/students', element: <SchoolStudentsPage /> },
           { path: 'school/balance', element: <SchoolBalancePage /> },

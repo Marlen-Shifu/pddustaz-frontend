@@ -4,6 +4,7 @@ import { ReadOutlined, LockOutlined } from '@ant-design/icons';
 import { lessonsApi } from '@/api/lessons';
 import { unwrapList } from '@/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useLanguageStore } from '@/store/useLanguageStore';
 import type { Category } from '@/types';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,6 +15,7 @@ export default function LessonsPage() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const lang = useLanguageStore((s) => s.lang);
 
   useEffect(() => {
     lessonsApi.getCategories()
@@ -48,20 +50,23 @@ export default function LessonsPage() {
       )}
 
       <Row gutter={[16, 16]}>
-        {categories.map((cat) => (
-          <Col xs={24} sm={12} md={8} lg={6} key={cat.id}>
-            <Card
-              hoverable
-              style={{ borderRadius: 16 }}
-              styles={{ body: { padding: 20 } }}
-              onClick={() => navigate(`/categories/${cat.slug}`)}
-            >
-              <ReadOutlined style={{ fontSize: 28, color: '#1D5BBD', marginBottom: 12, display: 'block' }} />
-              <Title level={5} style={{ marginTop: 0, marginBottom: 8 }}>{cat.name}</Title>
-              <Tag color="blue">{cat.lessons_count} уроков</Tag>
-            </Card>
-          </Col>
-        ))}
+        {categories.map((cat) => {
+          const catName = lang === 'kz' && cat.name_kz ? cat.name_kz : cat.name;
+          return (
+            <Col xs={24} sm={12} md={8} lg={6} key={cat.id}>
+              <Card
+                hoverable
+                style={{ borderRadius: 16 }}
+                styles={{ body: { padding: 20 } }}
+                onClick={() => navigate(`/categories/${cat.slug}`)}
+              >
+                <ReadOutlined style={{ fontSize: 28, color: '#1D5BBD', marginBottom: 12, display: 'block' }} />
+                <Title level={5} style={{ marginTop: 0, marginBottom: 8 }}>{catName}</Title>
+                <Tag color="blue">{cat.lessons_count} уроков</Tag>
+              </Card>
+            </Col>
+          );
+        })}
       </Row>
     </div>
   );

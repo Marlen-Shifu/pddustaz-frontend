@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, Menu, Typography, Divider, Avatar, Button, Spin, Dropdown } from 'antd';
+import { Layout, Menu, Typography, Divider, Avatar, Button, Spin, Dropdown, Segmented } from 'antd';
 import type { MenuProps } from 'antd';
 import {
   HomeOutlined,
@@ -15,7 +15,6 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  HistoryOutlined,
   BankOutlined,
   TeamOutlined,
   WalletOutlined,
@@ -23,6 +22,7 @@ import {
   PlayCircleOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useLanguageStore } from '@/store/useLanguageStore';
 
 const { Sider, Content, Header } = Layout;
 const { Text } = Typography;
@@ -34,7 +34,6 @@ const baseMenuItems: MenuItem[] = [
   { key: '/tests', icon: <FileTextOutlined />, label: 'Тесты' },
   { key: '/lessons', icon: <ReadOutlined />, label: 'Уроки' },
   { key: '/demo', icon: <PlayCircleOutlined />, label: 'Демо' },
-  { key: '/tests/history', icon: <HistoryOutlined />, label: 'Мои попытки' },
   { key: '/tariffs', icon: <CreditCardOutlined />, label: 'Тарифы и оплата' },
   { type: 'divider' },
   {
@@ -82,6 +81,7 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, loading, fetchUser, logout } = useAuthStore();
+  const { lang, setLang } = useLanguageStore();
 
   const siderWidth = 260;
   const collapsedWidth = 80;
@@ -181,6 +181,11 @@ export default function MainLayout() {
             onClick={() => setCollapsed(!collapsed)}
           />
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Segmented
+              value={lang}
+              onChange={(v) => setLang(v as 'ru' | 'kz')}
+              options={[{ label: 'РУ', value: 'ru' }, { label: 'ҚАЗ', value: 'kz' }]}
+            />
             {isAuthenticated && user ? (
               <Dropdown
                 menu={{

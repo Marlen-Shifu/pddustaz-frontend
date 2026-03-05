@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Typography, Row, Col, Card, Tag, Button, Spin, Tabs, Table, Tooltip, App, Result } from 'antd';
+import { Typography, Row, Col, Card, Tag, Button, Spin, Tabs, Table, Tooltip, App, Result, Select, Space } from 'antd';
 import { FileTextOutlined, LockOutlined, HistoryOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { lessonsApi } from '@/api/lessons';
 import { testsApi } from '@/api/tests';
 import { unwrapList } from '@/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
-import type { Category, Test, TestAttempt } from '@/types';
+import type { Category, Test, TestAttempt, AttemptStatus } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 
@@ -41,6 +41,7 @@ export default function TestsPage() {
   const [attempts, setAttempts] = useState<TestAttempt[]>([]);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState<AttemptStatus | 'all'>('all');
   const navigate = useNavigate();
   const { message } = App.useApp();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -96,7 +97,9 @@ export default function TestsPage() {
     return <Spin size="large" style={{ display: 'block', margin: '120px auto' }} />;
   }
 
-  const recentAttempts = attempts.slice(0, 5);
+  const filteredAttempts = statusFilter === 'all'
+    ? attempts
+    : attempts.filter((a) => a.status === statusFilter);
 
   const tabs = [
     {
@@ -184,14 +187,29 @@ export default function TestsPage() {
     tabs.push({
       key: 'history',
       label: (
-        <span><HistoryOutlined /> История</span>
+        <span><HistoryOutlined /> Мои попытки</span>
       ) as unknown as string,
       children: (
         <div>
+          <div style={{ marginBottom: 16 }}>
+            <Space>
+              <Select
+                value={statusFilter}
+                onChange={setStatusFilter}
+                style={{ width: 180 }}
+                options={[
+                  { label: 'Все статусы', value: 'all' },
+                  { label: 'В процессе', value: 'in_progress' },
+                  { label: 'Завершён', value: 'completed' },
+                  { label: 'Истёк', value: 'expired' },
+                ]}
+              />
+            </Space>
+          </div>
           <Table
-            dataSource={recentAttempts}
+            dataSource={filteredAttempts}
             rowKey="id"
-            pagination={false}
+            pagination={{ pageSize: 20 }}
             columns={[
               {
                 title: 'Тест',
@@ -210,10 +228,20 @@ export default function TestsPage() {
                 title: 'Результат',
                 key: 'score',
                 render: (_: unknown, record: TestAttempt) => {
-                  if (record.status === 'in_progress') return <ClockCircleOutlined />;
+                  if (record.status === 'in_progress') return <ClockCircleOutlined style={{ color: '#1D5BBD' }} />;
                   return record.is_passed
                     ? <span style={{ color: '#30A943' }}><CheckCircleOutlined /> {record.score}</span>
                     : <span style={{ color: '#E73642' }}><CloseCircleOutlined /> {record.score}</span>;
+                },
+              },
+              {
+                title: 'Сдан',
+                key: 'is_passed',
+                render: (_: unknown, record: TestAttempt) => {
+                  if (record.status === 'in_progress') return '—';
+                  return record.is_passed
+                    ? <Tag color="success">Да</Tag>
+                    : <Tag color="error">Нет</Tag>;
                 },
               },
               {
@@ -221,30 +249,25 @@ export default function TestsPage() {
                 dataIndex: 'started_at',
                 key: 'started_at',
                 render: (date: string) => dayjs(date).format('DD.MM.YYYY HH:mm'),
+                sorter: (a: TestAttempt, b: TestAttempt) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime(),
+                defaultSortOrder: 'descend',
               },
               {
                 title: '',
                 key: 'action',
                 render: (_: unknown, record: TestAttempt) =>
                   record.status === 'in_progress' ? (
-                    <Button size="small" type="link" onClick={() => navigate(`/tests/attempt/${record.id}`)}>
+                    <Button size="small" type="primary" onClick={() => navigate(`/tests/attempt/${record.id}`)}>
                       Продолжить
                     </Button>
                   ) : (
-                    <Button size="small" type="link" onClick={() => navigate(`/tests/result/${record.id}`)}>
+                    <Button size="small" onClick={() => navigate(`/tests/result/${record.id}`)}>
                       Результат
                     </Button>
                   ),
               },
             ]}
           />
-          {attempts.length > 5 && (
-            <div style={{ textAlign: 'center', marginTop: 16 }}>
-              <Button type="link" onClick={() => navigate('/tests/history')}>
-                Показать все попытки
-              </Button>
-            </div>
-          )}
         </div>
       ),
     });

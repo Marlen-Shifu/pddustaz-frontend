@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Typography, Card, Spin, App, Result, Breadcrumb, Tag } from 'antd';
 import { lessonsApi } from '@/api/lessons';
+import { useLanguageStore } from '@/store/useLanguageStore';
 import type { LessonDetail } from '@/types';
 
 const { Title, Text } = Typography;
@@ -10,6 +11,7 @@ export default function LessonDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { message } = App.useApp();
+  const lang = useLanguageStore((s) => s.lang);
 
   const [lesson, setLesson] = useState<LessonDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,22 +32,26 @@ export default function LessonDetailPage() {
     return <Result status="error" title="Урок не найден" />;
   }
 
+  const title = lang === 'kz' && lesson.title_kz ? lesson.title_kz : lesson.title;
+  const content = lang === 'kz' && lesson.content_kz ? lesson.content_kz : lesson.content;
+  const categoryName = lang === 'kz' && lesson.category_name_kz ? lesson.category_name_kz : lesson.category_name;
+
   return (
     <div style={{ maxWidth: 800, margin: '0 auto' }}>
       <Breadcrumb
         style={{ marginBottom: 16 }}
         items={[
-          { title: <a onClick={() => navigate('/tests')}>Тесты и уроки</a> },
-          { title: lesson.category_name },
-          { title: lesson.title },
+          { title: <a onClick={() => navigate('/lessons')}>Уроки</a> },
+          { title: categoryName },
+          { title },
         ]}
       />
 
       <Card style={{ borderRadius: 16 }}>
         <div style={{ marginBottom: 16 }}>
-          <Title level={2} style={{ marginBottom: 8 }}>{lesson.title}</Title>
+          <Title level={2} style={{ marginBottom: 8 }}>{title}</Title>
           <div style={{ display: 'flex', gap: 8 }}>
-            <Tag color="blue">{lesson.category_name}</Tag>
+            <Tag color="blue">{categoryName}</Tag>
             {lesson.is_demo && <Tag color="green">Демо</Tag>}
           </div>
         </div>
@@ -53,25 +59,24 @@ export default function LessonDetailPage() {
         {lesson.image && (
           <img
             src={lesson.image}
-            alt={lesson.title}
+            alt={title}
             style={{ width: '100%', borderRadius: 12, marginBottom: 24 }}
           />
         )}
 
-        {lesson.video_url && (
+        {lesson.video_file && (
           <div style={{ marginBottom: 24 }}>
-            <iframe
-              src={lesson.video_url}
-              title={lesson.title}
-              style={{ width: '100%', height: 400, border: 'none', borderRadius: 12 }}
-              allowFullScreen
+            <video
+              src={lesson.video_file}
+              controls
+              style={{ width: '100%', borderRadius: 12, maxHeight: 480 }}
             />
           </div>
         )}
 
         <div
           className="lesson-content"
-          dangerouslySetInnerHTML={{ __html: lesson.content }}
+          dangerouslySetInnerHTML={{ __html: content }}
           style={{ fontSize: 16, lineHeight: 1.8 }}
         />
 

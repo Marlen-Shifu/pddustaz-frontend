@@ -44,14 +44,14 @@ export default function LoginPage() {
           name="username"
           rules={[{ required: true, message: 'Введите имя пользователя' }]}
         >
-          <Input prefix={<UserOutlined />} placeholder="Имя пользователя" />
+          <Input prefix={<UserOutlined />} placeholder="Имя пользователя" autoComplete="username" />
         </Form.Item>
 
         <Form.Item
           name="password"
           rules={[{ required: true, message: 'Введите пароль' }]}
         >
-          <Input.Password prefix={<LockOutlined />} placeholder="Пароль" />
+          <Input.Password prefix={<LockOutlined />} placeholder="Пароль" autoComplete="current-password" />
         </Form.Item>
 
         <Form.Item>

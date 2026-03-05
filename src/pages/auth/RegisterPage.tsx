@@ -47,7 +47,7 @@ export default function RegisterPage() {
           name="username"
           rules={[{ required: true, message: 'Введите имя пользователя' }]}
         >
-          <Input prefix={<UserOutlined />} placeholder="Имя пользователя" />
+          <Input prefix={<UserOutlined />} placeholder="Имя пользователя" autoComplete="username" />
         </Form.Item>
 
         <Form.Item
@@ -57,7 +57,7 @@ export default function RegisterPage() {
             { type: 'email', message: 'Некорректный email' },
           ]}
         >
-          <Input prefix={<MailOutlined />} placeholder="Email" />
+          <Input prefix={<MailOutlined />} placeholder="Email" autoComplete="email" />
         </Form.Item>
 
         <Form.Item name="phone">
@@ -71,7 +71,7 @@ export default function RegisterPage() {
             { min: 8, message: 'Минимум 8 символов' },
           ]}
         >
-          <Input.Password prefix={<LockOutlined />} placeholder="Пароль" />
+          <Input.Password prefix={<LockOutlined />} placeholder="Пароль" autoComplete="new-password" />
         </Form.Item>
 
         <Form.Item>
